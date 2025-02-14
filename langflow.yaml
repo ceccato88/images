@@ -15,10 +15,9 @@ services:
       LANGFLOW_SUPERUSER: ${LANGFLOW_SUPERUSER}
       LANGFLOW_SUPERUSER_PASSWORD: ${LANGFLOW_SUPERUSER_PASSWORD}
       LANGFLOW_AUTO_LOGIN: ${LANGFLOW_AUTO_LOGIN}
-      LANGFLOW_SECRET_KEY: ${LANGFLOW_SECRET_KEY}
       LANGFLOW_NEW_USER_IS_ACTIVE: ${LANGFLOW_NEW_USER_IS_ACTIVE}
     volumes:
-      - ${LANGFLOW_VOLUME}:/var/lib/langflow
+      - langflow_config:/var/lib/langflow
 
   postgres:
     image: postgres:16
@@ -31,7 +30,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - ${POSTGRES_VOLUME}:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -44,7 +43,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_CHECK_EMAIL_DELIVERABILITY: False
     volumes:
-      - ${PGADMIN_VOLUME}:/pgadmin4/servers.json
+      - pgadmin_config:/pgadmin4/servers.json
 
 volumes:
   langflow_config:
