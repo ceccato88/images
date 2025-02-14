@@ -1,35 +1,51 @@
-version: "3.8"
+version: '3.8'
 
 services:
   langflow:
     image: langflowai/langflow:${SOFTWARE_VERSION_TAG}
-    pull_policy: always
+    container_name: ${LANGFLOW_CONTAINER_NAME}
+    restart: always
     ports:
-      - "7860:7860"
+      - "${LANGFLOW_PORT}:7860"
     depends_on:
       - postgres
     environment:
-      - LANGFLOW_DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
-      - LANGFLOW_CONFIG_DIR=app/langflow
-      - LANGFLOW_SUPERUSER=${LANGFLOW_SUPERUSER}
-      - LANGFLOW_SUPERUSER_PASSWORD=${ADMIN_PASSWORD}
-      - LANGFLOW_AUTO_LOGIN=False
-      - LANGFLOW_SECRET_KEY=${LANGFLOW_SECRET_KEY}
-      - LANGFLOW_NEW_USER_IS_ACTIVE=False
+      LANGFLOW_DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      LANGFLOW_CONFIG_DIR: /var/lib/langflow
+      LANGFLOW_SUPERUSER: ${LANGFLOW_SUPERUSER}
+      LANGFLOW_SUPERUSER_PASSWORD: ${LANGFLOW_SUPERUSER_PASSWORD}
+      LANGFLOW_AUTO_LOGIN: ${LANGFLOW_AUTO_LOGIN}
+      LANGFLOW_SECRET_KEY: ${LANGFLOW_SECRET_KEY}
+      LANGFLOW_NEW_USER_IS_ACTIVE: ${LANGFLOW_NEW_USER_IS_ACTIVE}
     volumes:
-      - langflow-data:/app/langflow
+      - langflow_config:/var/lib/langflow
 
   postgres:
     image: postgres:16
+    container_name: ${POSTGRES_CONTAINER_NAME}
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432"
     volumes:
-      - /langflow-postgres:/var/lib/postgresql/data
-      
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ${PGADMIN_CONTAINER_NAME}
+    restart: always
+    ports:
+      - "${PGADMIN_PORT}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin_config:/pgadmin4/servers.json
+
 volumes:
-  langflow-postgres:
-  langflow-data:
+  langflow_config:
+  postgres_data:
+  pgadmin_config:
